@@ -1,7 +1,7 @@
 import { Injectable, computed, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
-import { AddChecklist, Checklist } from '../insterfaces/checklist';
+import { AddChecklist, Checklist } from '../interfaces/checklist';
 
 export interface ChecklistsState {
   checklists: Checklist[];
