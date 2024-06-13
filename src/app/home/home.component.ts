@@ -1,6 +1,8 @@
-import { Component, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { ModalComponent } from '../shared/ui/modal/modal.component';
 import { Checklist } from '../shared/insterfaces/checklist';
+import { FormBuilder } from '@angular/forms';
+import { FormModalComponent } from '../shared/ui/form-modal/form-modal.component';
 
 @Component({
   standalone: true,
@@ -12,11 +14,35 @@ import { Checklist } from '../shared/insterfaces/checklist';
     </header>
 
     <app-modal [isOpen]="!!checklistBeingEdited()">
-      <ng-template> Modal </ng-template>
+      <ng-template>
+        <app-form-modal
+          [title]="
+            checklistBeingEdited()?.title
+              ? checklistBeingEdited()!.title!
+              : 'Add Checklist'
+          "
+          [formGroup]="checklistForm"
+          (close)="checklistBeingEdited.set(null)"
+        />
+      </ng-template>
     </app-modal>
   `,
-  imports: [ModalComponent],
+  imports: [ModalComponent, FormModalComponent],
 })
 export default class HomeComponent {
   checklistBeingEdited = signal<Partial<Checklist> | null>(null);
+
+  fb = inject(FormBuilder);
+
+  checklistForm = this.fb.nonNullable.group({
+    title: [''],
+  });
+
+  constructor() {
+    effect(() => {
+      if (this.checklistBeingEdited()) {
+        this.checklistForm.reset();
+      }
+    });
+  }
 }
