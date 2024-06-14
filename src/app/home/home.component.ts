@@ -11,7 +11,7 @@ import { ChecklistListComponent } from './ui/checklist-list/checklist-list.compo
   selector: 'app-home',
   template: `
     <header>
-      <h1>Quicklists</h1>
+      <h1>Checklists</h1>
       <button (click)="checklistBeingEdited.set({})">Add Checklist</button>
     </header>
     <section>

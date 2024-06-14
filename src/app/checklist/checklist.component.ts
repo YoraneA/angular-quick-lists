@@ -2,39 +2,39 @@ import {Component, computed, effect, inject, signal} from '@angular/core';
 import {ChecklistService} from '../shared/data-access/checklist.service';
 import {ActivatedRoute} from '@angular/router';
 import {toSignal} from '@angular/core/rxjs-interop';
-import {ChecklistHeaderComponent} from './ui/checklist-header/checklist-header.component';
-import {ChecklistItemService} from "./data-access/checklist-item.service";
+import {HeaderComponent} from './ui/header/header.component';
+import {ItemService} from "./data-access/item.service";
 import {FormBuilder} from "@angular/forms";
-import {ChecklistItem} from "../shared/interfaces/checklist-item";
+import {Item} from "../shared/interfaces/item";
 import {ModalComponent} from "../shared/ui/modal/modal.component";
 import {FormModalComponent} from "../shared/ui/form-modal/form-modal.component";
 import {ChecklistListComponent} from "../home/ui/checklist-list/checklist-list.component";
-import {ChecklistItemListComponent} from "./ui/item/checklist-item-list.component";
+import {ItemListComponent} from "./ui/item/item-list.component";
 
 @Component({
   selector: 'app-checklist',
   standalone: true,
-  imports: [ChecklistHeaderComponent, ModalComponent, FormModalComponent, ChecklistListComponent, ChecklistItemListComponent],
+  imports: [HeaderComponent, ModalComponent, FormModalComponent, ChecklistListComponent, ItemListComponent],
   template: `
-    @if (checklist(); as checklist){
-    <app-checklist-header [checklist]="checklist" (addItem)="checklistItemBeingEdited.set({})"/>
+    @if (checklist(); as checklist) {
+      <app-checklist-header [checklist]="checklist" (addItem)="itemBeingEdited.set({})"/>
       <section>
         <h2>Your Items</h2>
         <app-checklist-item-list
-          [checklistItems]="checklistItem()"
-          (toggleDone)="checklistItemService.toggle$.next($event)"
+          [items]="items()"
+          (toggleDone)="itemService.toggle$.next($event)"
         />
       </section>
-      <app-modal [isOpen]="!!checklistItemBeingEdited()">
+      <app-modal [isOpen]="!!itemBeingEdited()">
         <ng-template>
           <app-form-modal
             title="Create item"
             [formGroup]="checklistItemForm"
-            (save)="checklistItemService.add$.next({
+            (save)="itemService.add$.next({
               item: checklistItemForm.getRawValue(),
               checklistId: checklist?.id!,
             })"
-            (close)="checklistItemBeingEdited.set(null)"
+            (close)="itemBeingEdited.set(null)"
           ></app-form-modal>
         </ng-template>
       </app-modal>
@@ -44,11 +44,11 @@ import {ChecklistItemListComponent} from "./ui/item/checklist-item-list.componen
 })
 export default class ChecklistComponent {
   checklistService = inject(ChecklistService);
-  checklistItemService = inject(ChecklistItemService);
+  itemService = inject(ItemService);
   route = inject(ActivatedRoute);
   formBuilder = inject(FormBuilder);
 
-  checklistItemBeingEdited = signal<Partial<ChecklistItem> | null>(null);
+  itemBeingEdited = signal<Partial<Item> | null>(null);
 
   params = toSignal(this.route.paramMap);
 
@@ -58,10 +58,10 @@ export default class ChecklistComponent {
       .find((checklist) => checklist.id === this.params()?.get('id'))
   );
 
-  checklistItem = computed(() =>
-    this.checklistItemService
-      .checklistItems()
-      .filter(checklistItem => checklistItem.checklistId === this.params()?.get('id'))
+  items = computed(() =>
+    this.itemService
+      .items()
+      .filter(item => item.checklistId === this.params()?.get('id'))
   )
 
   checklistItemForm = this.formBuilder.nonNullable.group({
@@ -70,9 +70,9 @@ export default class ChecklistComponent {
 
   constructor() {
     effect(() => {
-      const checklistItem = this.checklistItemBeingEdited();
+      const item = this.itemBeingEdited();
 
-      if (!checklistItem) {
+      if (!item) {
         this.checklistItemForm.reset();
       }
     });

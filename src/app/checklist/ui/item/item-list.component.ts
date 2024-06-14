@@ -1,6 +1,6 @@
 import {Component, input, output, signal} from '@angular/core';
 import {RouterLink} from "@angular/router";
-import {ChecklistItem, RemoveChecklistItem} from "../../../shared/interfaces/checklist-item";
+import {Item, RemoveItem} from "../../../shared/interfaces/item";
 
 @Component({
   selector: 'app-checklist-item-list',
@@ -10,7 +10,7 @@ import {ChecklistItem, RemoveChecklistItem} from "../../../shared/interfaces/che
   ],
   template: `
     <ul>
-      @for (item of checklistItems(); track item.id) {
+      @for (item of items(); track item.id) {
         <li>
           <div>
             @if (item.checked) {
@@ -32,7 +32,7 @@ import {ChecklistItem, RemoveChecklistItem} from "../../../shared/interfaces/che
   `,
   styles: ``
 })
-export class ChecklistItemListComponent {
-  checklistItems = input.required<ChecklistItem[]>();
-  toggleDone = output<RemoveChecklistItem>();
+export class ItemListComponent {
+  items = input.required<Item[]>();
+  toggleDone = output<RemoveItem>();
 }

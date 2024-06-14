@@ -4,7 +4,7 @@ import { Checklist } from '../../../shared/interfaces/checklist';
 
 @Component({
   standalone: true,
-  selector: 'app-checklist-header',
+  selector: 'app-header',
   template: `
     <header>
       <a routerLink="/home">Back</a>
@@ -18,7 +18,7 @@ import { Checklist } from '../../../shared/interfaces/checklist';
   `,
   imports: [RouterLink],
 })
-export class ChecklistHeaderComponent {
+export class HeaderComponent {
   checklist = input.required<Checklist>();
   addItem = output();
 }
