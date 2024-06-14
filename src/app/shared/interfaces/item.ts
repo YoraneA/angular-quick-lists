@@ -11,7 +11,7 @@ export type AddItem = {
   item: Omit<Item, 'id' | 'checklistId' | 'checked'>;
   checklistId: RemoveChecklist;
 };
-export type EditChecklistItem = {
+export type EditItem = {
   id: Item['id'];
   data: AddItem['item'];
 };
