@@ -25,6 +25,7 @@ export class ItemService {
   // sources
   add$ = new Subject<AddItem>();
   toggle$ = new Subject<RemoveItem>();
+  reset$ = new Subject<RemoveItem>();
 
   constructor() {
     this.add$.pipe(takeUntilDestroyed()).subscribe((checklistItem) =>
@@ -54,5 +55,18 @@ export class ItemService {
           )
         }))
       });
+
+    this.reset$
+      .pipe(takeUntilDestroyed())
+      .subscribe(checklistId => {
+        this.state.update((state) => ({
+          ...state,
+          items: state.items.map((item) =>
+            item.checklistId === checklistId
+              ? {...item, checked: false}
+              : item
+          )
+        }))
+      })
   }
 }

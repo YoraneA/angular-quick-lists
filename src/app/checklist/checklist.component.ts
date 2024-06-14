@@ -17,10 +17,11 @@ import {ItemListComponent} from "./ui/item/item-list.component";
   imports: [HeaderComponent, ModalComponent, FormModalComponent, ChecklistListComponent, ItemListComponent],
   template: `
     @if (checklist(); as checklist) {
-      <app-checklist-header [checklist]="checklist" (addItem)="itemBeingEdited.set({})"/>
+      <app-header [checklist]="checklist" (addItem)="itemBeingEdited.set({})"/>
       <section>
         <h2>Your Items</h2>
-        <app-checklist-item-list
+        <button (click)="itemService.reset$.next(checklist.id)">Reset</button>
+        <app-item-list
           [items]="items()"
           (toggleDone)="itemService.toggle$.next($event)"
         />

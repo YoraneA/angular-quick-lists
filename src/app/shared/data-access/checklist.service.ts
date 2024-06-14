@@ -1,7 +1,8 @@
-import { Injectable, computed, signal } from '@angular/core';
+import {Injectable, computed, signal, inject} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subject } from 'rxjs';
 import { AddChecklist, Checklist } from '../interfaces/checklist';
+import {StorageService} from "./storage.service";
 
 export interface ChecklistsState {
   checklists: Checklist[];
@@ -11,6 +12,8 @@ export interface ChecklistsState {
   providedIn: 'root',
 })
 export class ChecklistService {
+  storageService = inject(StorageService);
+
   // state
   private state = signal<ChecklistsState>({
     checklists: [],
@@ -24,11 +27,13 @@ export class ChecklistService {
 
   constructor() {
     // reducers
-    this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
-      this.state.update((state) => ({
-        ...state,
-        checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-      }))
+    this.add$
+      .pipe(takeUntilDestroyed())
+      .subscribe((checklist) =>
+        this.state.update((state) => ({
+          ...state,
+          checklists: [...state.checklists, this.addIdToChecklist(checklist)],
+        }))
     );
   }
 

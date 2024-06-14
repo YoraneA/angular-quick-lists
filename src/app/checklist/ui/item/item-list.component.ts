@@ -3,7 +3,7 @@ import {RouterLink} from "@angular/router";
 import {Item, RemoveItem} from "../../../shared/interfaces/item";
 
 @Component({
-  selector: 'app-checklist-item-list',
+  selector: 'app-item-list',
   standalone: true,
   imports: [
     RouterLink
