@@ -1,43 +1,76 @@
-import {Injectable, computed, signal, inject} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
-import { AddChecklist, Checklist } from '../interfaces/checklist';
+import {computed, effect, inject, Injectable, signal} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {Subject} from 'rxjs';
+import {AddChecklist, Checklist} from "../interfaces/checklist";
 import {StorageService} from "./storage.service";
 
 export interface ChecklistsState {
   checklists: Checklist[];
+  loaded: boolean;
+  error: null;
 }
 
+/**
+  Sources
+  ⬇️
+  Reducers
+  ⬇️
+  State
+  ⬇️
+  Selectors
+*/
 @Injectable({
   providedIn: 'root',
 })
 export class ChecklistService {
-  storageService = inject(StorageService);
+  private storageService = inject(StorageService);
 
   // state
   private state = signal<ChecklistsState>({
     checklists: [],
+    loaded: false,
+    error: null,
   });
 
   // selectors
   checklists = computed(() => this.state().checklists);
+  loaded = computed(() => this.state().loaded);
 
   // sources
+  private checklistsLoaded$ = this.storageService.loadChecklists();
   add$ = new Subject<AddChecklist>();
 
   constructor() {
     // reducers
-    this.add$
-      .pipe(takeUntilDestroyed())
-      .subscribe((checklist) =>
+    this.checklistsLoaded$.pipe(takeUntilDestroyed()).subscribe({
+      next: (checklists) =>
         this.state.update((state) => ({
           ...state,
-          checklists: [...state.checklists, this.addIdToChecklist(checklist)],
-        }))
+          checklists,
+          loaded: true,
+        })),
+      error: (error) => this.state.update((state) => ({ ...state, error })),
+    });
+
+    this.add$.pipe(takeUntilDestroyed()).subscribe((checklist) =>
+      this.state.update((state) => ({
+        ...state,
+        checklists: [
+          ...state.checklists,
+          this.addIdToChecklist(checklist)
+        ],
+      }))
     );
+
+    // effects
+    effect(() => {
+      if (this.loaded()) {
+        this.storageService.saveChecklists(this.checklists());
+      }
+    });
   }
 
-  private addIdToChecklist(checklist: AddChecklist) {
+  private addIdToChecklist(checklist: AddChecklist): Checklist {
     return {
       ...checklist,
       id: this.generateSlug(checklist.title),
